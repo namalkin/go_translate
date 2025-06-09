@@ -8,27 +8,34 @@ import (
 )
 
 func (h *Handler) signUp(c *gin.Context) {
-	var input tables.User
+	var input tables.SignUpInput
 
-	if err := c.BindJSON(&input); err != nil {
+	if err := c.ShouldBindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := h.services.Authorisation.CreateUser(input)
+	user := tables.User{
+		Name:     input.Name,
+		Username: input.Username,
+		Password: input.Password,
+	}
+
+	id, err := h.services.Authorisation.CreateUser(user)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"id": id,
 	})
 }
 
 func (h *Handler) signIn(c *gin.Context) {
-	var input tables.User
+	var input tables.SignInInput
 
-	if err := c.BindJSON(&input); err != nil {
+	if err := c.ShouldBindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -38,6 +45,7 @@ func (h *Handler) signIn(c *gin.Context) {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"token": token,
 	})
