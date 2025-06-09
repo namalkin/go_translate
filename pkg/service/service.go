@@ -14,7 +14,7 @@ type Authorisation interface {
 type Translation interface {
 	Create(userId string, translation tables.Translation) (string, error)
 	GetAll(userId string, limit int) ([]tables.Translation, bool, error)
-	GetById(userId, translationId string) (tables.Translation, error)
+	GetById(userId, translationId string) (tables.Translation, bool, error)
 	Delete(userId, translationId string) error
 	Update(userId, translationId string, input tables.UpdateTranslationInput) error
 	DeleteByPhrase(userId, phrase string) error

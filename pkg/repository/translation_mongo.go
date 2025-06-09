@@ -102,25 +102,16 @@ func (r *TranslationMongo) Update(userId, listId string, input tables.UpdateTran
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// listId в ObjectID
 	objectId, err := primitive.ObjectIDFromHex(listId)
 	if err != nil {
 		return err
 	}
 
-	// Сначала получаем текущий набор переводов
-	var currentSet tables.Translation
 	filter := bson.M{"_id": objectId, "user_id": userId}
-	err = r.collection.FindOne(ctx, filter).Decode(&currentSet)
-	if err != nil {
-		return err
-	}
 
-	// Проверяем, совпадает ли перевод
-	done := currentSet.ExpectedTranslation == *input.Translation
+	// Используем правильное значение done из input
+	update := bson.M{"$set": bson.M{"done": input.Done != nil && *input.Done}}
 
-	// Обновляем только поле done
-	update := bson.M{"$set": bson.M{"done": done}}
 	_, err = r.collection.UpdateOne(ctx, filter, update)
 	return err
 }

@@ -58,7 +58,7 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 func (s *AuthService) ParseToken(accessToken string) (string, error) {
 	t, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("Ошибка signin вызова")
+			return nil, errors.New("ошибка signin вызова")
 		}
 		return []byte(signingKey), nil
 	})
@@ -68,7 +68,7 @@ func (s *AuthService) ParseToken(accessToken string) (string, error) {
 
 	claims, ok := t.Claims.(*tokenClaims)
 	if !ok {
-		return "0", errors.New("Токен не является типом *tokenClaims")
+		return "0", errors.New("токен не является типом *tokenClaims")
 	}
 	return claims.UserId, nil
 }

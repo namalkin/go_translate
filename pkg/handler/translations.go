@@ -79,6 +79,7 @@ func (h *Handler) getAllTranslations(c *gin.Context) {
 
 // GET перевод по id
 func (h *Handler) getTranslationById(c *gin.Context) {
+	start := time.Now()
 	userId, err := getUserId(c)
 	if err != nil {
 		return
@@ -95,7 +96,7 @@ func (h *Handler) getTranslationById(c *gin.Context) {
 		return
 	}
 
-	translation, err := h.services.Translation.GetById(userId, translationId)
+	translation, fromCache, err := h.services.Translation.GetById(userId, translationId)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			newErrorResponse(c, http.StatusNotFound, "Перевод не найден")
@@ -105,7 +106,18 @@ func (h *Handler) getTranslationById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, translation)
+	source := "db"
+	if fromCache {
+		source = "cache"
+	}
+
+	duration := time.Since(start).Milliseconds()
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":        translation,
+		"source":      source,
+		"duration_ms": duration,
+	})
 }
 
 // PUT перевод по id
@@ -132,8 +144,24 @@ func (h *Handler) updateTranslation(c *gin.Context) {
 		return
 	}
 
-	if err := input.Validate(); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+	translation, _, err := h.services.Translation.GetById(userId, translationId)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			newErrorResponse(c, http.StatusNotFound, "Перевод не найден")
+		} else {
+			newErrorResponse(c, http.StatusInternalServerError, "Ошибка получения перевода")
+		}
+		return
+	}
+
+	if err := input.Validate(translation.ExpectedTranslation); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":    "incorrect",
+			"message":   err.Error(),
+			"correct":   false,
+			"expected":  translation.ExpectedTranslation,
+			"submitted": *input.Translation,
+		})
 		return
 	}
 
@@ -143,7 +171,11 @@ func (h *Handler) updateTranslation(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, statusResponse{Status: "ok"})
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "ok",
+		"correct": true,
+		"done":    true,
+	})
 }
 
 // DELETE перевод по id

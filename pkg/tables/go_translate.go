@@ -14,12 +14,18 @@ type Translation struct {
 }
 
 type UpdateTranslationInput struct {
-	Translation *string `json:"translation" binding:"required"`
+	Translation *string `json:"translation"`
+	Done        *bool   `json:"done"`
 }
 
-func (i UpdateTranslationInput) Validate() error {
+func (i UpdateTranslationInput) Validate(expectedTranslation string) error {
 	if i.Translation == nil {
-		return errors.New("translation is required")
+		return errors.New("поле translation обязательно")
 	}
+
+	if *i.Translation != expectedTranslation {
+		return errors.New("неверный перевод")
+	}
+
 	return nil
 }

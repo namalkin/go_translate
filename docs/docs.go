@@ -83,7 +83,7 @@ const docTemplate = `{
         },
         "/translations": {
             "get": {
-                "security": [{"ApiKeyAuth": []}],
+                "security": [{"BearerAuth": []}],
                 "tags": ["translations"],
                 "summary": "Получить все переводы пользователя",
                 "description": "Возвращает список всех слов и фраз для изучения",
@@ -128,7 +128,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "security": [{"ApiKeyAuth": []}],
+                "security": [{"BearerAuth": []}],
                 "tags": ["translations"],
                 "summary": "Добавить новое слово/фразу для изучения",
                 "parameters": [{
@@ -157,7 +157,7 @@ const docTemplate = `{
         },
         "/translations/{id}": {
             "get": {
-                "security": [{"ApiKeyAuth": []}],
+                "security": [{"BearerAuth": []}],
                 "tags": ["translations"],
                 "summary": "Получить конкретный перевод",
                 "parameters": [{
@@ -176,7 +176,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "security": [{"ApiKeyAuth": []}],
+                "security": [{"BearerAuth": []}],
                 "tags": ["translations"],
                 "summary": "Проверить перевод",
                 "description": "Отправка перевода для проверки правильности",
@@ -206,7 +206,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "security": [{"ApiKeyAuth": []}],
+                "security": [{"BearerAuth": []}],
                 "tags": ["translations"],
                 "summary": "Удалить слово/фразу из изучаемых",
                 "parameters": [{
@@ -233,7 +233,7 @@ const docTemplate = `{
         },
         "/translations/post100": {
             "post": {
-                "security": [{"ApiKeyAuth": []}],
+                "security": [{"BearerAuth": []}],
                 "tags": ["translations"],
                 "summary": "Создать тестовый набор из 100 переводов",
                 "description": "Создает 100 тестовых переводов на основе базового набора из 10 слов",
@@ -273,7 +273,7 @@ const docTemplate = `{
         },
         "/translations/post100k": {
             "post": {
-                "security": [{"ApiKeyAuth": []}],
+                "security": [{"BearerAuth": []}],
                 "tags": ["translations"],
                 "summary": "Создать тестовый набор из 100000 переводов",
                 "description": "Создает 100000 тестовых переводов на основе базового набора из 10 слов",
@@ -313,7 +313,7 @@ const docTemplate = `{
         },
         "/translations/delete_all": {
             "delete": {
-                "security": [{"ApiKeyAuth": []}],
+                "security": [{"BearerAuth": []}],
                 "tags": ["translations"],
                 "summary": "Удалить все переводы пользователя",
                 "description": "Удаляет все переводы текущего пользователя",
@@ -428,12 +428,18 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
-        "ApiKeyAuth": {
+        "BearerAuth": {
             "type": "apiKey",
+            "in": "header",
             "name": "Authorization",
-            "in": "header"
+            "description": "Введите токен JWT в формате: Bearer <token>"
         }
-    }
+    },
+    "security": [
+        {
+            "BearerAuth": []
+        }
+    ]
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it

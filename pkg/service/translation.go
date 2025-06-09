@@ -42,19 +42,19 @@ func (s *TranslationService) GetAll(userId string, limit int) ([]tables.Translat
 	if limit > 0 && limit < len(translations) {
 		translations = translations[:limit]
 	}
-	if err == nil && s.cache != nil {
+	if s.cache != nil {
 		_ = s.cache.Set(cacheKey, translations, 60) // 60 сек
 	}
 	return translations, false, err
 }
 
-func (s *TranslationService) GetById(userId, translationId string) (tables.Translation, error) {
+func (s *TranslationService) GetById(userId, translationId string) (tables.Translation, bool, error) {
 	cacheKey := fmt.Sprintf("translations:id:%s:%s", userId, translationId)
 	if s.cache != nil {
 		if cached, err := s.cache.Get(cacheKey); err == nil && cached != "" {
 			var result tables.Translation
 			if err := json.Unmarshal([]byte(cached), &result); err == nil {
-				return result, nil
+				return result, true, nil
 			}
 		}
 	}
@@ -62,7 +62,7 @@ func (s *TranslationService) GetById(userId, translationId string) (tables.Trans
 	if err == nil && s.cache != nil {
 		_ = s.cache.Set(cacheKey, translation, 60)
 	}
-	return translation, err
+	return translation, false, err
 }
 
 func (s *TranslationService) Delete(userId, translationId string) error {
@@ -81,9 +81,6 @@ func (s *TranslationService) DeleteByPhrase(userId, phrase string) error {
 }
 
 func (s *TranslationService) Update(userId, translationId string, input tables.UpdateTranslationInput) error {
-	if err := input.Validate(); err != nil {
-		return err
-	}
 	if s.cache != nil {
 		_ = s.cache.Del(fmt.Sprintf("translations:id:%s:%s", userId, translationId))
 		_ = s.cache.Del(fmt.Sprintf("translations:all:%s", userId))
