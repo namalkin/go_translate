@@ -1,0 +1,12 @@
+port: "8080"
+
+db:
+  uri: "mongodb://admin:rootpassword@mongo:27017/mongo_db_data?authSource=admin"
+  dbname: "mongo_db_data"
+  username: "admin"
+  password: "rootpassword"
+
+redis:
+  addr: "redis:6379"
+  password: ""
+  db: 0

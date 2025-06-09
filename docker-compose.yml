@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      MONGO_INITDB_DATABASE: mongo_db_data
+    networks:
+      - app-network
+
+  migrator:
+    build: .
+    depends_on:
+      - mongo
+    entrypoint: ["/bin/sh", "/app/entrypoint.sh"]
+    networks:
+      - app-network
+    volumes:
+      - ./migrations:/app/migrations
+      - ./migrate-mongo-config.js:/app/migrate-mongo-config.js
+      - ./entrypoint.sh:/app/entrypoint.sh
+    restart: "no"  # выполнит миграции один раз и завершится
+
+  app:
+    build: .
+    container_name: go_translate_app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+      - migrator  # дождётся миграций
+    environment:
+      DB_URI: "mongodb://admin:rootpassword@mongo:27017/mongo_db_data?authSource=admin"
+      DB_NAME: "mongo_db_data"
+      DB_USER: "admin"
+      DB_PASS: "rootpassword"
+      PORT: "8080"
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  mongo-express:
+    image: mongo-express:1.0.0-alpha.4
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: rootpassword
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: strongpassword
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+volumes:
+  mongo_data:
+
+networks:
+  app-network:
+    driver: bridge
