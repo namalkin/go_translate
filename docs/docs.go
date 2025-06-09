@@ -8,10 +8,6 @@ const docTemplate = `{
     "info": {
         "description": "API для изучения иностранных слов. Позволяет создавать, управлять и практиковать переводы слов и фраз.",
         "title": "API Изучение иностранного языка",
-        "contact": {
-            "name": "API поддержка",
-            "email": "nanomalkin@gmail.com"
-        },
         "version": "1.123"
     },
     "host": "localhost:8080",

@@ -69,9 +69,6 @@ func (h *Handler) getAllTranslations(c *gin.Context) {
 
 	duration := time.Since(start).Milliseconds()
 
-	// консоль GIN
-	c.Writer.WriteString("[GIN-debug] translations source: " + source + "\n")
-
 	c.JSON(http.StatusOK, gin.H{
 		"data":        translations,
 		"total":       total,

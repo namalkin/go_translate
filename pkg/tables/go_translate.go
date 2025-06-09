@@ -13,13 +13,6 @@ type Translation struct {
 	Done                bool               `json:"done" bson:"done"`
 }
 
-type UserProgress struct {
-	Id            primitive.ObjectID `bson:"_id,omitempty"`
-	UserId        primitive.ObjectID `bson:"user_id"`
-	TranslationId primitive.ObjectID `bson:"translation_id"`
-	Done          bool               `bson:"done"`
-}
-
 type UpdateTranslationInput struct {
 	Translation *string `json:"translation" binding:"required"`
 }
