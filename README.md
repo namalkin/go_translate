@@ -21,7 +21,7 @@ cd go_translate
 
 2. Запустите сервисы через Docker Compose:
 ```bash
-docker-compose up -d
+docker-compose up -d --build
 ```
 
 3. Проверьте статус сервисов:
